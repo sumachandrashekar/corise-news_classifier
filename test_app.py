@@ -25,7 +25,9 @@ def test_root():
     [TO BE IMPLEMENTED]
     Test the root ("/") endpoint, which just returns a {"Hello": "World"} json response
     """
-    pass
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"Hello": "World"}
 
 
 def test_predict_empty():
@@ -33,7 +35,8 @@ def test_predict_empty():
     [TO BE IMPLEMENTED]
     Test the "/predict" endpoint, with an empty request body
     """
-    pass
+    response = client.post("/predict", json={})
+    assert (response.status_code >= 400) and (response.status_code < 500)
 
 
 def test_predict_en_lang():
@@ -41,7 +44,15 @@ def test_predict_en_lang():
     [TO BE IMPLEMENTED]
     Test the "/predict" endpoint, with an input text in English (you can use one of the test cases provided in README.md)
     """
-    pass
+    sample = {
+        "source": "The Washington Post",
+        "url": "http://www.washingtonpost.com/wp-dyn/articles/A46063-2005Jan3.html?nav=rss_sports",
+        "title": "Ruffin Fills Key Role",
+        "description": "With power forward Etan Thomas having missed the entire season, reserve forward Michael Ruffin has done well in taking his place.",
+    }
+    response = client.post("/predict", json=sample)
+    assert response.status_code == 200
+    assert response.json()["label"] == "Sports"
 
 
 def test_predict_es_lang():
@@ -50,7 +61,14 @@ def test_predict_es_lang():
     Test the "/predict" endpoint, with an input text in Spanish. 
     Does the tokenizer and classifier handle this case correctly? Does it return an error?
     """
-    pass
+    sample = {
+        "source": "The Washington Post",
+        "url": "some/url",
+        "title": "Some title",
+        "description": "Hola me llamo Charles.",
+    }
+    response = client.post("/predict", json=sample)
+    assert response.status_code == 200
 
 
 def test_predict_non_ascii():
@@ -59,4 +77,11 @@ def test_predict_non_ascii():
     Test the "/predict" endpoint, with an input text that has non-ASCII characters. 
     Does the tokenizer and classifier handle this case correctly? Does it return an error?
     """
-    pass
+    sample = {
+        "source": "The Washington Post",
+        "url": "some/url",
+        "title": "Some title",
+        "description": "ålphan¨merˆc",
+    }
+    response = client.post("/predict", json=sample)
+    assert response.status_code == 200
